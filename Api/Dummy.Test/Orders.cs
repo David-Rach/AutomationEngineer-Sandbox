@@ -40,6 +40,15 @@ public class Orders
     [TestMethod]
     public Task CreateOrderFailsWhenTitleHasWhiteSpace()
     {
+        var validator = new Mock<IOrderValidator>();
+        validator.Setup(v => v.ValidateWhiteSpace(It.IsAny<string>()))
+            .Returns(true);
+
+        validator.Setup(v => v.ValidateTitleLength(It.IsAny<string>()))
+            .Returns(true);
+
+
+        
         throw new NotImplementedException();
     }
 

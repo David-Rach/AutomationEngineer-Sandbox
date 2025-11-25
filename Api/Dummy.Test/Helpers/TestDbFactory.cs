@@ -3,6 +3,7 @@ using Dummy.Data.Entities;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Dummy.Tests.TestHelpers;
 
@@ -30,8 +31,8 @@ public static class TestDbFactory
 
         return db;
     }
-    
-    public static (DummyDbContext db, IServiceProvider provider) CreateContextWithDI()
+
+    public static (DummyDbContext db, IServiceProvider provider) CreateContextWithDI(IOrderValidator? customValidator = null)
     {
         var connection = new SqliteConnection("Filename=:memory:");
         connection.Open();
@@ -42,7 +43,7 @@ public static class TestDbFactory
 
         var db = new DummyDbContext(options);
         db.Database.EnsureCreated();
-        
+
         // optional seed
         db.Items.AddRange(
             new Item { Name = "Widget", Quantity = 10 },
@@ -53,11 +54,18 @@ public static class TestDbFactory
         var services = new ServiceCollection();
         services.AddDbContext<DummyDbContext>(o => o.UseSqlite(connection));
         
-        services.AddScoped<IOrderValidator, OrderValidator>();
+        if (customValidator != null)
+        {
+            services.AddScoped<IOrderValidator>(_ => customValidator);
+        }
+        else
+        {
+            services.AddScoped<IOrderValidator, OrderValidator>();
+        }
+
 
         var provider = services.BuildServiceProvider();
 
         return (db, provider);
     }
-
 }

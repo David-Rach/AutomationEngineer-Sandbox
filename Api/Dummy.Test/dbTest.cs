@@ -7,6 +7,7 @@ using EntityGraphQL;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Newtonsoft.Json;
 
 [TestClass]
@@ -60,7 +61,7 @@ public class DbTests
     {
         var (db, provider) = TestDbFactory.CreateContextWithDI();
         var schema = GraphQLTestHelper.CreateSchema();
-
+        
         var request = new QueryRequest
         {
             Query = @"
